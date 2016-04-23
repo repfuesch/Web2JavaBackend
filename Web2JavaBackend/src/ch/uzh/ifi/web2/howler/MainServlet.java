@@ -13,7 +13,7 @@ import ch.uzh.ifi.feedback.library.rest.RestManager;
 /**
  * Servlet implementation class MainServlet
  */
-@WebServlet("/MainServlet")
+@WebServlet("/")
 public class MainServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -25,6 +25,7 @@ public class MainServlet extends HttpServlet {
     public MainServlet() {
         super();
         // TODO Auto-generated constructor stub
+        InitController();
     }
     
     private void InitController(){
@@ -47,6 +48,10 @@ public class MainServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		restManager.Get(request, response);
+	}
+	
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		restManager.Put(request, response);
 	}
 
 }
