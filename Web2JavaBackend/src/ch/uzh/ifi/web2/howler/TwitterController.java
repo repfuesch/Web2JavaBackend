@@ -1,10 +1,19 @@
 package ch.uzh.ifi.web2.howler;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.bson.Document;
+
+import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.MongoURI;
+import com.mongodb.MongoWriteConcernException;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import ch.uzh.ifi.feedback.library.rest.Controller;
 import ch.uzh.ifi.feedback.library.rest.RestController;
@@ -30,11 +39,14 @@ public class TwitterController extends RestController<Location> {
 	@Override
 	public void Put(HttpServletRequest request, HttpServletResponse response, Location location) throws Exception {
 		
-		Extractor extractor = new Extractor();
 		List<Tweet> tweets = tweetManager.getTweets(location.getLongitude(), location.getLatitude());
 
-		MongoClient mongoClient = new MongoClient();
-		MongoDatabase db = mongoClient.getDatabase("test");
+		ServerAddress address = new ServerAddress("ds031812.mlab.com", 31812);
+		MongoCredential credential = MongoCredential.createCredential("admin", "howlrdb", "admin".toCharArray());
+		List<MongoCredential> credentials = new ArrayList<>();
+		credentials.add(credential);
+		MongoClient mongoClient = new MongoClient(address, credentials);
+		MongoDatabase db = mongoClient.getDatabase("howlrdb");
 		db.getCollection("tweets").drop();
 		
 		tweets.stream().forEach(t -> {
@@ -54,5 +66,7 @@ public class TwitterController extends RestController<Location> {
 							.append("city", t.getCity())
 					);
 		});
+		
+		mongoClient.close();
 	}
 }

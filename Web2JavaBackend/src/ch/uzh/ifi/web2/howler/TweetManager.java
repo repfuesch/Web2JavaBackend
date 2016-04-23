@@ -1,5 +1,7 @@
 package ch.uzh.ifi.web2.howler;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class TweetManager {
 	public TweetManager(){
 		twitter = new TwitterFactory().getInstance();
 		extractor = new Extractor();
-		setResultSize(100);
+		setResultSize(10);
 		setBatchSize(20);
 	}
 	
@@ -56,6 +58,7 @@ public class TweetManager {
 	        	   tweet.setLanguage(status.getLang());
 	        	   tweet.setTopics(extractor.extractHashtags(status.getText()));
 	        	   tweet.setMessage(status.getText());
+	        	   System.out.println(tweet.getMessage());
 	        	   tweetList.add(tweet);
 	           }
 	           count += batchSize;
