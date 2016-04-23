@@ -1,11 +1,10 @@
 package ch.uzh.ifi.web2.howler;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.twitter.Extractor;
+import com.twitter.Extractor.Entity;
 
 import twitter4j.GeoLocation;
 import twitter4j.Query;
@@ -34,7 +33,7 @@ public class TweetManager {
 	public TweetManager(){
 		twitter = new TwitterFactory().getInstance();
 		extractor = new Extractor();
-		setResultSize(10);
+		setResultSize(100);
 		setBatchSize(20);
 	}
 	
@@ -57,8 +56,12 @@ public class TweetManager {
 	        	   tweet.setCreatedAt(status.getCreatedAt());
 	        	   tweet.setLanguage(status.getLang());
 	        	   tweet.setTopics(extractor.extractHashtags(status.getText()));
-	        	   tweet.setMessage(status.getText());
-	        	   System.out.println(tweet.getMessage());
+	        	   String text = status.getText();
+	        	   List<Entity> entities = extractor.extractEntitiesWithIndices(text);
+	        	   text = cleanTweet(text, entities);
+	        	   
+	        	   System.out.println(text);
+	        	   tweet.setMessage(text);
 	        	   tweetList.add(tweet);
 	           }
 	           count += batchSize;
@@ -72,6 +75,18 @@ public class TweetManager {
 	   
 	   return tweetList;
 	}
+	
+	 public String cleanTweet(String text, List<Entity> entities) {
+		 StringBuilder builder = new StringBuilder(text.length());
+		 
+		 int beginIndex = 0;
+		 for (Entity entity : entities) {
+			 builder.append(text.subSequence(beginIndex, entity.getStart()));
+			 beginIndex = entity.getEnd();
+		 }
+		 builder.append(text.subSequence(beginIndex, text.length()));
+		 return builder.toString();
+		 }
 
 	public int getResultSize() {
 		return resultSize;
