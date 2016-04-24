@@ -40,7 +40,6 @@ public class TwitterController extends RestController<Location> {
 	public void Put(HttpServletRequest request, HttpServletResponse response, Location location) throws Exception {
 		
 		List<Tweet> tweets = tweetManager.getTweets(location.getLongitude(), location.getLatitude());
-
 		ServerAddress address = new ServerAddress("ds031812.mlab.com", 31812);
 		MongoCredential credential = MongoCredential.createCredential("admin", "howlrdb", "admin".toCharArray());
 		List<MongoCredential> credentials = new ArrayList<>();
