@@ -6,6 +6,7 @@ import java.util.List;
 public class Tweet {
 	
 	private List<String> topics;
+	private long tweetId;
 	private String category;
 	private String city;
 	private Date createdAt;
@@ -47,5 +48,11 @@ public class Tweet {
 	}
 	public void setCity(String city) {
 		this.city = city;
+	}
+	public long getTweetId() {
+		return tweetId;
+	}
+	public void setTweetId(long tweetId) {
+		this.tweetId = tweetId;
 	}	
 }

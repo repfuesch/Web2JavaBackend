@@ -11,33 +11,25 @@ import twitter4j.Query;
 import twitter4j.Query.Unit;
 import twitter4j.QueryResult;
 import twitter4j.Status;
+import twitter4j.Trend;
+import twitter4j.Trends;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 
-public class TweetManager {
+public class TwitterManager {
 	
 	private Twitter twitter;
 	private Extractor extractor;
 	private int resultSize;
-	private int batchSize;
-	
-	public int getBatchSize() {
-		return batchSize;
-	}
 
-	public void setBatchSize(int batchSize) {
-		this.batchSize = batchSize;
-	}
-
-	public TweetManager(){
+	public TwitterManager(){
 		twitter = new TwitterFactory().getInstance();
 		extractor = new Extractor();
-		setResultSize(100);
-		setBatchSize(20);
+		setResultSize(10);
 	}
 	
-	public List<Tweet> getTweets(double longitude, double latitude) {
+	public List<Tweet> getTweets(double longitude, double latitude) throws TwitterException {
 	
 	   List<Tweet> tweetList = new ArrayList<Tweet>();
 	   int count = 0;
@@ -45,8 +37,8 @@ public class TweetManager {
 	   try {
 		   
 	       Query query = new Query();
-	       query.setCount(batchSize);
-	       query.setGeoCode(new GeoLocation(latitude, longitude), 20.0, Unit.km);
+	       query.setCount(10);
+	       query.setGeoCode(new GeoLocation(latitude, longitude), 100.0, Unit.km);
 	       
 	       do{
 			   QueryResult queryResult = twitter.search(query);
@@ -59,21 +51,36 @@ public class TweetManager {
 	        	   String text = status.getText();
 	        	   List<Entity> entities = extractor.extractEntitiesWithIndices(text);
 	        	   text = cleanTweet(text, entities);
-	        	   
-	        	   System.out.println(text);
 	        	   tweet.setMessage(text);
+	        	   tweet.setTweetId(status.getId());
 	        	   tweetList.add(tweet);
+	        	   
+		           count ++;
 	           }
-	           count += batchSize;
 	       }
 	       while(count < resultSize);
 	       
 	   } catch (TwitterException te) {
 	       te.printStackTrace();
 	       System.out.println("Failed to search tweets: " + te.getMessage());
+	       throw te;
 	   }
 	   
 	   return tweetList;
+	}
+	
+	public List<Trend> GetTrendingTopics(int woeid) throws TwitterException
+	{
+		List<Trend> trendingTopics = new ArrayList<>();
+		Trends trends = twitter.getPlaceTrends(23424957);
+		for(Trend trend : trends.getTrends())
+		{
+			if(trend.getName().startsWith("#")){
+				trendingTopics.add(trend);
+			}
+		}
+		
+		return trendingTopics;
 	}
 	
 	 public String cleanTweet(String text, List<Entity> entities) {
