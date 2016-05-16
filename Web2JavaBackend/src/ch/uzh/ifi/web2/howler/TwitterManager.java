@@ -1,13 +1,18 @@
 package ch.uzh.ifi.web2.howler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.mongodb.MongoClient;
 import com.twitter.Extractor;
 import com.twitter.Extractor.Entity;
 
+import twitter4j.FilterQuery;
 import twitter4j.GeoLocation;
 import twitter4j.Query;
+import twitter4j.Query.ResultType;
 import twitter4j.Query.Unit;
 import twitter4j.QueryResult;
 import twitter4j.Status;
@@ -16,10 +21,13 @@ import twitter4j.Trends;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
 
 public class TwitterManager {
 	
 	private Twitter twitter;
+	private TwitterStream stream;
 	private Extractor extractor;
 	private int resultSize;
 
@@ -29,16 +37,43 @@ public class TwitterManager {
 		setResultSize(10);
 	}
 	
-	public List<Tweet> getTweets(double longitude, double latitude) throws TwitterException {
+	public void RegisterTopics(List<Location> locations, List<String> topics, MongoClient client)
+	{	
+        stream = new TwitterStreamFactory().getInstance();
+
+//        List<List<Double>> locCoords = new ArrayList<>();
+//        for(Location l : locations)
+//        {
+//        	List<Double> coords = new ArrayList<>();
+//        	coords.add(l.getLatitude());
+//        	coords.add(l.getLongitude());
+//        	locCoords.add(coords);
+//        }
+//        
+//        double[][] coordArray = new double[locCoords.size()][];
+//        for (int i = 0; i < locCoords.size(); i++) {
+//            List<Double> row = locCoords.get(i);
+//            coordArray[i] = new double[]{ row.get(0), row.get(1) };
+//        }
+        
+        FilterQuery fq = new FilterQuery();
+        fq.locations(new double[][]{ {5.95587, 45.81802}, {10.49203, 47.80838} });
+        TweetListener tweetListener = new TweetListener(client, locations, topics);
+        stream.addListener(tweetListener);
+        stream.filter(fq);
+	}
+	
+	public List<Tweet> getTweets(Location location, String topic) throws TwitterException {
 	
 	   List<Tweet> tweetList = new ArrayList<Tweet>();
 	   int count = 0;
 	   
 	   try {
-		   
 	       Query query = new Query();
-	       query.setCount(10);
-	       query.setGeoCode(new GeoLocation(latitude, longitude), 100.0, Unit.km);
+	       query.setQuery(topic);
+	       query.setCount(1);
+	       query.setGeoCode(new GeoLocation(location.getLatitude(), location.getLongitude()), 20.0, Unit.km);
+	       query.setResultType(ResultType.popular);
 	       
 	       do{
 			   QueryResult queryResult = twitter.search(query);
@@ -47,12 +82,15 @@ public class TwitterManager {
 	        	   Tweet tweet = new Tweet();
 	        	   tweet.setCreatedAt(status.getCreatedAt());
 	        	   tweet.setLanguage(status.getLang());
-	        	   tweet.setTopics(extractor.extractHashtags(status.getText()));
+	        	   tweet.setTopic(topic);
+	        	   tweet.setCanton(location.getCanton());
 	        	   String text = status.getText();
-	        	   List<Entity> entities = extractor.extractEntitiesWithIndices(text);
-	        	   text = cleanTweet(text, entities);
+	        	   //List<Entity> entities = extractor.extractEntitiesWithIndices(text);
+	        	   //text = cleanTweet(text, entities);
 	        	   tweet.setMessage(text);
 	        	   tweet.setTweetId(status.getId());
+	        	   tweet.setLongitude(status.getGeoLocation().getLongitude());
+	        	   tweet.setLatitude(status.getGeoLocation().getLatitude());
 	        	   tweetList.add(tweet);
 	        	   
 		           count ++;

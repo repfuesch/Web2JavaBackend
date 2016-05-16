@@ -5,19 +5,22 @@ import java.util.List;
 
 public class Tweet {
 	
-	private List<String> topics;
+	private String topic;
 	private long tweetId;
 	private String category;
 	private String city;
 	private Date createdAt;
 	private String message;
 	private String language;
+	private String canton;
+	private double longitude;
+	private double latitude;
 	
-	public List<String> getTopics() {
-		return topics;
+	public String getTopic() {
+		return topic;
 	}
-	public void setTopics(List<String> topics) {
-		this.topics = topics;
+	public void setTopic(String topic) {
+		this.topic = topic;
 	}
 	public Date getCreatedAt() {
 		return createdAt;
@@ -54,5 +57,23 @@ public class Tweet {
 	}
 	public void setTweetId(long tweetId) {
 		this.tweetId = tweetId;
+	}
+	public String getCanton() {
+		return canton;
+	}
+	public void setCanton(String canton) {
+		this.canton = canton;
+	}
+	public double getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+	public double getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
 	}	
 }
