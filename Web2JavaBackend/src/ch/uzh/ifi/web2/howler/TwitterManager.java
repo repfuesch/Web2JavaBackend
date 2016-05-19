@@ -21,6 +21,7 @@ import twitter4j.Trends;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.TwitterListener;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 
@@ -38,28 +39,18 @@ public class TwitterManager {
 	}
 	
 	public void RegisterTopics(List<Location> locations, List<String> topics, MongoClient client)
-	{	
-        stream = new TwitterStreamFactory().getInstance();
+	{
+		if(stream == null){
+	        stream = new TwitterStreamFactory().getInstance();
+		}else{
+			stream.clearListeners();
+		}
 
-//        List<List<Double>> locCoords = new ArrayList<>();
-//        for(Location l : locations)
-//        {
-//        	List<Double> coords = new ArrayList<>();
-//        	coords.add(l.getLatitude());
-//        	coords.add(l.getLongitude());
-//        	locCoords.add(coords);
-//        }
-//        
-//        double[][] coordArray = new double[locCoords.size()][];
-//        for (int i = 0; i < locCoords.size(); i++) {
-//            List<Double> row = locCoords.get(i);
-//            coordArray[i] = new double[]{ row.get(0), row.get(1) };
-//        }
-        
+        TweetListener listener = new TweetListener(client, locations, topics);
+        stream.addListener(listener);
         FilterQuery fq = new FilterQuery();
         fq.locations(new double[][]{ {5.95587, 45.81802}, {10.49203, 47.80838} });
-        TweetListener tweetListener = new TweetListener(client, locations, topics);
-        stream.addListener(tweetListener);
+
         stream.filter(fq);
 	}
 	

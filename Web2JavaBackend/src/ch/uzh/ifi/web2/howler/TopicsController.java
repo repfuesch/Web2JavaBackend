@@ -49,8 +49,8 @@ public class TopicsController extends RestController<Object> {
 		//Retrieve Locations
 		List<Location> locations = GetLocations();
 		//register new topics in twitterManager
-		//twitterManager.RegisterTopics(locations, topics, mongoClient);
-		UpdateTweets(locations, topics);
+		twitterManager.RegisterTopics(locations, topics, mongoClient);
+		//UpdateTweets(locations, topics);
 		//UpdateTestTweets(locations, topics);
 		
 		response.getWriter().append(" \n Topics and Tweets updated! \n");
@@ -59,15 +59,15 @@ public class TopicsController extends RestController<Object> {
 	private void UpdateTrends(List<Trend> trendingTopics)
 	{
 		MongoDatabase db = mongoClient.getDatabase("howlrdb");
-		boolean duplicate = false;
 		for(Trend trend : trendingTopics)
 		{
+			boolean duplicate = false;
 			for(Document doc : db.getCollection("topics").find())
 			{
-				for(Trend topic : trendingTopics)
+				if(doc.getString("name").equalsIgnoreCase(trend.getName()))
 				{
-					if(doc.getString("name").equalsIgnoreCase(topic.getName()))
-						duplicate = true;
+					duplicate = true;
+					break;
 				}
 			}
 			
@@ -153,7 +153,7 @@ public class TopicsController extends RestController<Object> {
 		FindIterable<Document> dbLocations = db.getCollection("locations").find();
 		for(Document doc : dbLocations)
 		{
-			locations.add(new Location(doc.getString("name"), doc.getString("canton"), doc.getDouble("long"), doc.getDouble("lat")));
+			locations.add(new Location(doc.getString("name"), doc.getString("canton"),  doc.getDouble("lat"), doc.getDouble("long")));
 		}
 		return locations;
 	}
