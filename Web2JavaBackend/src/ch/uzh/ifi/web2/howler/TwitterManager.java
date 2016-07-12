@@ -25,6 +25,12 @@ import twitter4j.TwitterListener;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 
+/**
+ * Class that is responsible for the communication with the twitter API. Provides
+ * functionality for the registration of topics, as well as for the retrieval of
+ * tweets and trending topics.
+ *
+ */
 public class TwitterManager {
 	
 	private Twitter twitter;
@@ -76,8 +82,6 @@ public class TwitterManager {
 	        	   tweet.setTopic(topic);
 	        	   tweet.setCanton(location.getCanton());
 	        	   String text = status.getText();
-	        	   //List<Entity> entities = extractor.extractEntitiesWithIndices(text);
-	        	   //text = cleanTweet(text, entities);
 	        	   tweet.setMessage(text);
 	        	   tweet.setTweetId(status.getId());
 	        	   tweet.setLongitude(status.getGeoLocation().getLongitude());

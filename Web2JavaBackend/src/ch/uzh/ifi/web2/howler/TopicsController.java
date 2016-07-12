@@ -26,6 +26,10 @@ import twitter4j.Trends;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 
+/**
+ * 
+ * Controller Class for updating the trending topics of switzerland.
+ */
 @Controller(Route = "/topics")
 public class TopicsController extends RestController<Object> {
 
@@ -50,8 +54,6 @@ public class TopicsController extends RestController<Object> {
 		List<Location> locations = GetLocations();
 		//register new topics in twitterManager
 		twitterManager.RegisterTopics(locations, topics, mongoClient);
-		//UpdateTweets(locations, topics);
-		//UpdateTestTweets(locations, topics);
 		
 		response.getWriter().append(" \n Topics and Tweets updated! \n");
 	}
@@ -77,57 +79,6 @@ public class TopicsController extends RestController<Object> {
 						new Document()
 								.append("name", trend.getName())
 								.append("categories", new ArrayList<String>())
-						);
-			}
-		}
-	}
-	
-	private void UpdateTweets(List<Location> locations, List<String> topics) throws Exception
-	{
-		MongoDatabase db = mongoClient.getDatabase("howlrdb");
-		twitterManager.setResultSize(1);
-		for(Location location : locations)
-		{
-			for(String topic : topics)
-			{
-				List<Tweet> tweets = twitterManager.getTweets(location, topic);
-				tweets.forEach(tweet -> {
-					db.getCollection("tweets").insertOne(
-							new Document()
-									.append("topic", tweet.getTopic())
-									.append("createdAt", tweet.getCreatedAt())
-									.append("text", tweet.getMessage())
-									.append("city", tweet.getCity())
-									.append("canton", tweet.getCanton())
-									.append("language", tweet.getLanguage())
-									.append("longitude", tweet.getLongitude())
-									.append("latitude", tweet.getLatitude())
-									.append("id", tweet.getTweetId())
-							);
-				});
-			}
-		}
-	}
-	
-	private void UpdateTestTweets(List<Location> locations, List<String> topics) throws Exception
-	{
-		MongoDatabase db = mongoClient.getDatabase("howlrdb");
-		db.getCollection("test_tweets").drop();
-		for(Location location : locations)
-		{
-			for(String topic : topics)
-			{
-				db.getCollection("test_tweets").insertOne(
-						new Document()
-								.append("topic", topic)
-								.append("createdAt", Date.from(Instant.now()))
-								.append("text", topic)
-								.append("city", location.getName())
-								.append("canton", location.getCanton())
-								.append("language", "en")
-								.append("longitude", location.getLongitude())
-								.append("latitude", location.getLatitude())
-								.append("id", (long) (Math.random() * 100000))
 						);
 			}
 		}

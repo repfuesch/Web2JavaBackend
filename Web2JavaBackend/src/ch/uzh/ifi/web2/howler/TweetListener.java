@@ -19,6 +19,11 @@ import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
 
+/**
+ * 
+ *StatusListener that receives Status updates from twitter. Puts tweets that belong to a trending topic
+ *and are located in switzerland into the database.
+ */
 public class TweetListener implements StatusListener, twitter4j.util.function.Consumer<RateLimitStatusEvent>
 {
 	private List<String> topics;
@@ -34,11 +39,11 @@ public class TweetListener implements StatusListener, twitter4j.util.function.Co
 	   {
 		   double dist1 = Math.sqrt(Math.pow(l1.getLatitude() - latitude, 2) + Math.pow(l1.getLongitude() - longitude, 2));
 		   double dist2 = Math.sqrt(Math.pow(l2.getLatitude() - latitude, 2) + Math.pow(l2.getLongitude() - longitude, 2));
-		   if(dist1 <= dist2)
-			   return 1;
+		   if(dist1 < dist2)
+			   return -1;
 		   if (dist1 == dist2)
 			   return 0;
-		   return -1;
+		   return 1;
 	   };
 	
 	public TweetListener(MongoClient client, List<Location> locations, List<String> topics)

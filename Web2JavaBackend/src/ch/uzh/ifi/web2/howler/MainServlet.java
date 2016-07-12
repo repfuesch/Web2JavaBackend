@@ -25,7 +25,6 @@ public class MainServlet extends HttpServlet {
      */
     public MainServlet() {
         super();
-        // TODO Auto-generated constructor stub
         InitController();
     }
     
@@ -43,9 +42,6 @@ public class MainServlet extends HttpServlet {
         }
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		restManager.Get(request, response);
 	}
@@ -53,5 +49,4 @@ public class MainServlet extends HttpServlet {
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		restManager.Put(request, response);
 	}
-
 }
